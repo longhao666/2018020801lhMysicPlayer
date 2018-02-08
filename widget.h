@@ -17,6 +17,9 @@ public:
     explicit Widget(QWidget *parent = 0);
     ~Widget();
 
+public slots:
+    void musicOn();
+
 private slots:
 
 
@@ -30,7 +33,12 @@ private slots:
 
     void on_pushButton_clicked();
 
-    void on_songListWidget_currentRowChanged(int currentRow);
+    void on_songListWidget_doubleClicked(const QModelIndex &index);
+
+    void on_timeHorizontalSlider_valueChanged(int value);
+    void durationChangeSlot(qint64 duration);
+
+    void on_mutePushButton_clicked();
 
 public:
     void lhMusicPlayerInit();
@@ -48,6 +56,8 @@ private:
     QStringList lyricList;
 
     int playCount;
+
+    qint64 m_duration;
 };
 
 #endif // WIDGET_H

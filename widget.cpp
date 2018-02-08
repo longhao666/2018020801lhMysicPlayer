@@ -19,9 +19,14 @@ Widget::~Widget()
     delete ui;
 }
 
+void Widget::musicOn()
+{
+    this->on_nextPushButton_clicked();
+}
+
 void Widget::lhMusicPlayerInit()
 {
-    playCount = 1;
+    playCount = 0;
 
 //    playerSong = "../../lhMusicSong/刘惜君 - 我很快乐.mp3";
 //    playerSong = "D:/QtProject/QtMusic/lhMusicSong/来了.mp3";
@@ -45,7 +50,11 @@ void Widget::lhMusicPlayerInit()
    // mediaPlayer->setMedia(QUrl(playerSong));
     mediaPlayer->setVolume(30);
     ui->soundHorizontalSlider->setValue(30);
+    connect(mediaPlayer, SIGNAL(durationChanged(qint64)), this, SLOT(durationChangeSlot()));
     //mediaPlayer->play();
+
+  //  connect(mediaPlayer,SIGNAL(metaDataChanged()),this,SLOT(musicOn()));
+
 
 
 }
@@ -57,12 +66,15 @@ void Widget::on_playPushButton_clicked()
         //qDebug("666");
         mediaPlayer->play();
         ui->playPushButton->setText(tr("暂停"));
+        //mediaPlayer->durationChanged(1000);
     }else {
         //qDebug("6667766");
         mediaPlayer->pause();
         //mediaPlayer->stop();
         ui->playPushButton->setText(tr("播放"));
     }
+    qDebug() << mediaPlayer->duration();
+
 }
 
 void Widget::on_proPushButton_clicked()
@@ -177,28 +189,35 @@ void Widget::getFilePath()
             lyricList.append(mfi.fileName());
         }
     }
-
-//    for (int i=0; i< playerListSong.size(); ++i) {
-//        qDebug() << playerListSong.at(i);
-//    }
-
-//    for (int i=0; i< lyricList.size(); ++i) {
-//        //qDebug() << lyricList.at(i);
-//        ui->songListWidget->addItem(lyricList[i]);
-//    }
     ui->songListWidget->addItems(lyricList);
 }
 
-
-void Widget::on_songListWidget_currentRowChanged(int currentRow)
+void Widget::on_songListWidget_doubleClicked(const QModelIndex &index)
 {
-    qDebug()<<currentRow;
-    for(int i=0; i==currentRow; i++) {
-        qDebug("jinlema");
-        mediaPlayer->stop();
-        playCount = currentRow;
-        mediaPlayer->setMedia(QUrl(playerListSong[playCount]));
-        mediaPlayer->play();
-        ui->playPushButton->setText(tr("暂停"));
+    mediaPlayer->stop();
+    playCount = index.row();
+    mediaPlayer->setMedia(QUrl(playerListSong[playCount]));
+    mediaPlayer->play();
+    ui->playPushButton->setText(tr("暂停"));
+}
+
+void Widget::on_timeHorizontalSlider_valueChanged(int value)
+{
+    qDebug() << value;
+}
+
+void Widget::durationChangeSlot(qint64 duration)
+{
+    this->m_duration = duration / 1000;
+    ui->timeHorizontalSlider->setMaximum(m_duration);
+}
+
+void Widget::on_mutePushButton_clicked()
+{
+    bool check = ui->mutePushButton->isChecked();
+    if(check) {
+        mediaPlayer->setMuted(false);
+    }else {
+        mediaPlayer->setMuted(true);
     }
 }
